@@ -17,42 +17,26 @@
 package com.android.axion.themepicker.ui.lockscreen
 
 import android.content.Context
-import android.database.ContentObserver
-import android.icu.util.TimeZone as IcuTimeZone
-import android.os.Handler
-import android.os.Looper
-import android.os.Vibrator
-import android.provider.Settings
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams
-import android.widget.FrameLayout
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.unit.sp
 import com.android.axion.themepicker.utils.math.scaleRatio
-import com.android.systemui.plugins.keyguard.ui.clocks.*
-import com.android.systemui.shared.clocks.AxClockProvider
-import com.android.systemui.shared.clocks.ClockSettingsRepository
-import com.android.systemui.shared.clocks.view.AxClockView
 import java.util.Calendar
-import java.util.Locale
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.cbrt
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
 
 val Context.previewScale: Float
     get() {
@@ -112,151 +96,37 @@ fun Modifier.scaledLayout(scale: Float, overrideWidth: Dp = Dp.Unspecified): Mod
 fun PreviewClock(isPreview: Boolean, isRegionDark: Boolean = true) {
     val context = LocalContext.current
     val scale = if (isPreview) context.previewScale else context.scaleRatio
-    var settingsVersion by remember { mutableIntStateOf(0) }
-
-    val clockProvider = remember {
-        AxClockProvider(
-            layoutInflater = LayoutInflater.from(context),
-            resources = context.resources,
-            isClockReactiveVariantsEnabled = true,
-            vibrator = context.getSystemService(Vibrator::class.java),
-        )
-    }
-
-    DisposableEffect(Unit) {
-        val resolver = context.contentResolver
-        val observer =
-            object : ContentObserver(Handler(Looper.getMainLooper())) {
-                override fun onChange(selfChange: Boolean) {
-                    settingsVersion++
-                }
-            }
-        val uris =
-            listOf(
-                ClockSettingsRepository.clockFaceUri,
-                ClockSettingsRepository.alignmentUri,
-                ClockSettingsRepository.sizeUri,
-            )
-        uris.forEach { resolver.registerContentObserver(it, false, observer) }
-        onDispose { resolver.unregisterContentObserver(observer) }
-    }
-
-    var currentClockId by remember { mutableStateOf<String?>(null) }
-    var currentTime by remember { mutableStateOf(Calendar.getInstance().time) }
-
-    LaunchedEffect(settingsVersion) {
-        withContext(Dispatchers.IO) {
-            try {
-                val json =
-                    Settings.Secure.getString(
-                        context.contentResolver,
-                        ClockSettingsRepository.SETTING_CLOCK_FACE,
-                    )
-                val id =
-                    if (!json.isNullOrEmpty()) {
-                        JSONObject(json).optString("clockId", "DEFAULT")
-                    } else {
-                        "DEFAULT"
-                    }
-                withContext(Dispatchers.Main) { currentClockId = id }
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-                withContext(Dispatchers.Main) { currentClockId = "DEFAULT" }
-            }
-        }
-    }
+    var currentTime by remember { mutableStateOf(Calendar.getInstance()) }
 
     LaunchedEffect(Unit) {
         while (true) {
-            currentTime = Calendar.getInstance().time
+            currentTime = Calendar.getInstance()
             delay(1000L)
         }
     }
 
-    val clockId = currentClockId ?: return
+    val textColor = if (isRegionDark) Color.White else Color.Black
+    val timeFormat = remember { DateFormat.getTimeFormat(context) }
+    val dateFormat = remember { DateFormat.getMediumDateFormat(context) }
 
-    val controller =
-        remember(clockId, settingsVersion) {
-            clockProvider.createClock(context, ClockSettings(clockId = clockId)).apply {
-                initialize(isDarkTheme = true, dozeFraction = 0f, foldFraction = 0f)
-                (smallClock.view as? AxClockView)?.apply {
-                    depthEffectEnabled = true
-                    touchEnabled = false
-                }
-                (largeClock.view as? AxClockView)?.apply {
-                    depthEffectEnabled = true
-                    touchEnabled = false
-                }
-                smallClock.events.onRegionDarknessChanged(isRegionDark)
-                largeClock.events.onRegionDarknessChanged(isRegionDark)
-                events.onLocaleChanged(Locale.getDefault())
-                events.onTimeZoneChanged(IcuTimeZone.getDefault())
-                events.onTimeFormatChanged(TimeFormatKind.getFromContext(context))
-                events.onDateChanged()
-                events.onClockDataChanged(
-                    ClockData(
-                        weather = ClockWeatherData(),
-                        calendar =
-                            CalendarSimpleData(
-                                1L,
-                                "",
-                                System.currentTimeMillis() + 300000L,
-                                System.currentTimeMillis() + 3600000L,
-                                null,
-                            ),
-                    )
-                )
-                smallClock.events.onTimeTick()
-                largeClock.events.onTimeTick()
-            }
-        }
-
-    LaunchedEffect(isRegionDark) {
-        controller.smallClock.events.onRegionDarknessChanged(isRegionDark)
-        controller.largeClock.events.onRegionDarknessChanged(isRegionDark)
+    Column(
+        modifier =
+            Modifier.fillMaxWidth()
+                .wrapContentHeight()
+                .padding(vertical = 12.dp * scale)
+                .scaledLayout(scale),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = timeFormat.format(currentTime.time),
+            color = textColor,
+            fontSize = (72 * scale).sp.coerceAtLeast(32.sp),
+            fontWeight = FontWeight.Light,
+        )
+        Text(
+            text = dateFormat.format(currentTime.time),
+            color = textColor.copy(alpha = 0.85f),
+            fontSize = (16 * scale).sp.coerceAtLeast(12.sp),
+        )
     }
-
-    LaunchedEffect(currentTime) {
-        controller.smallClock.events.onTimeTick()
-        controller.largeClock.events.onTimeTick()
-    }
-
-    val configuration = LocalConfiguration.current
-    val clockWidth = configuration.screenWidthDp.dp
-
-    Column(modifier = Modifier.fillMaxWidth().wrapContentHeight()) {
-        Box(
-            modifier =
-                Modifier.fillMaxWidth().wrapContentHeight().padding(vertical = 12.dp * scale),
-            contentAlignment = Alignment.Center,
-        ) {
-            key(clockId, settingsVersion) {
-                SystemUIClockView(
-                    controller = controller,
-                    modifier =
-                        Modifier.scaledLayout(scale, if (isPreview) clockWidth else Dp.Unspecified),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun SystemUIClockView(controller: ClockController, modifier: Modifier = Modifier) {
-    AndroidView(
-        factory = { context ->
-            val clockView = controller.smallClock.view
-            (clockView.parent as? ViewGroup)?.removeView(clockView)
-
-            clockView.layoutParams =
-                FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-
-            FrameLayout(context).apply {
-                layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-                addView(clockView)
-            }
-        },
-        modifier = modifier.fillMaxWidth().wrapContentHeight(),
-        update = { controller.smallClock.events.onTimeTick() },
-    )
 }

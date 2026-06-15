@@ -80,8 +80,6 @@ fun LockscreenPreview(
         }
 
     var showPicker by remember { mutableStateOf(false) }
-    var showClockSheet by remember { mutableStateOf(false) }
-    var clockBottomPx by remember { mutableFloatStateOf(0f) }
     var showAffordancePicker by remember { mutableStateOf<AffordanceSlot?>(null) }
     var resizeTarget by remember { mutableStateOf<GridWidgetItem?>(null) }
     var widgetItems by remember { mutableStateOf(loadWidgets(context)) }
@@ -203,7 +201,6 @@ fun LockscreenPreview(
                 }
             }
             EntryPoint.CLOCK -> {
-                showClockSheet = true
                 entryPointConsumed = true
             }
             else -> {
@@ -288,10 +285,6 @@ fun LockscreenPreview(
                 onWidgetsMoved =
                     if (!isPreview) { newWidgets -> updateWidgets(newWidgets) } else null,
                 onEditWallpaper = onEditWallpaper,
-                onClockTapped =
-                    if (!isPreview) {
-                        { showClockSheet = true }
-                    } else null,
                 foregroundBitmap = foreground,
             )
         } else {
@@ -313,11 +306,6 @@ fun LockscreenPreview(
                 onWidgetsMoved =
                     if (!isPreview) { newWidgets -> updateWidgets(newWidgets) } else null,
                 onEditWallpaper = onEditWallpaper,
-                onClockTapped =
-                    if (!isPreview) {
-                        { showClockSheet = true }
-                    } else null,
-                onClockBottomMeasured = { clockBottomPx = it },
                 foregroundBitmap = foreground,
             )
         }
@@ -369,26 +357,6 @@ fun LockscreenPreview(
                 },
                 onDismiss = { resizeTarget = null },
             )
-
-            val density = LocalDensity.current
-            val screenHeightPx =
-                with(density) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
-            val gapPx = with(density) { 16.dp.toPx() }
-            val sheetMaxFraction =
-                if (clockBottomPx > 0f) {
-                    ((screenHeightPx - clockBottomPx - gapPx) / screenHeightPx).coerceIn(
-                        0.3f,
-                        0.65f,
-                    )
-                } else {
-                    0.65f
-                }
-
-            ClockFaceSheet(
-                visible = showClockSheet,
-                heightFraction = sheetMaxFraction,
-                onDismiss = { showClockSheet = false },
-            )
         }
     }
 }
@@ -428,27 +396,13 @@ private fun PortraitLayout(
     onConfigureWidget: ((GridWidgetItem) -> Unit)?,
     onWidgetsMoved: ((List<GridWidgetItem>) -> Unit)?,
     onEditWallpaper: (() -> Unit)? = null,
-    onClockTapped: (() -> Unit)? = null,
-    onClockBottomMeasured: ((Float) -> Unit)? = null,
     foregroundBitmap: Bitmap? = null,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(top = Dimens.ClockTopPadding * scale * 1.5f),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            modifier =
-                (if (onClockTapped != null) {
-                        Modifier.clickable { onClockTapped() }
-                    } else {
-                        Modifier
-                    })
-                    .onGloballyPositioned { coordinates ->
-                        val bottom =
-                            coordinates.positionInRoot().y + coordinates.size.height.toFloat()
-                        onClockBottomMeasured?.invoke(bottom)
-                    }
-        ) {
+        Box {
             PreviewClock(isPreview, isRegionDark)
 
             if (foregroundBitmap != null) {
@@ -510,7 +464,6 @@ private fun LandscapeLayout(
     onConfigureWidget: ((GridWidgetItem) -> Unit)?,
     onWidgetsMoved: ((List<GridWidgetItem>) -> Unit)?,
     onEditWallpaper: (() -> Unit)? = null,
-    onClockTapped: (() -> Unit)? = null,
     foregroundBitmap: Bitmap? = null,
 ) {
     Row(modifier = Modifier.fillMaxSize()) {
@@ -519,14 +472,7 @@ private fun LandscapeLayout(
                 Modifier.weight(1f).fillMaxHeight().padding(top = Dimens.ClockTopPadding * scale),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(
-                modifier =
-                    if (onClockTapped != null) {
-                        Modifier.clickable { onClockTapped() }
-                    } else {
-                        Modifier
-                    }
-            ) {
+            Box {
                 PreviewClock(isPreview, isRegionDark)
 
                 if (foregroundBitmap != null) {
