@@ -36,8 +36,6 @@ sealed class Screen : Parcelable {
 
     @Parcelize object ThemedIcons : Screen()
 
-    @Parcelize object Fonts : Screen()
-
     @Parcelize
     data class WallpaperCrop(
         val sourceUri: Uri? = null,

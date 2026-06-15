@@ -104,10 +104,6 @@ class MainScreenViewModel : ViewModel() {
         navigateTo(Screen.ThemedIcons)
     }
 
-    fun onOpenFonts() {
-        navigateTo(Screen.Fonts)
-    }
-
     fun onOpenGallery() {
         navigateTo(Screen.WallpaperGallery)
     }

@@ -60,7 +60,6 @@ import com.android.axion.themepicker.ui.sections.LockscreenSection
 import com.android.axion.themepicker.ui.sections.StyleSection
 import com.android.axion.themepicker.ui.sections.WallpaperSection
 import com.android.axion.themepicker.ui.themes.AppGridSettingsScreen
-import com.android.axion.themepicker.ui.themes.FontScreen
 import com.android.axion.themepicker.ui.themes.IconShapesScreen
 import com.android.axion.themepicker.ui.themes.ThemedIconsScreen
 import com.android.axion.themepicker.ui.wallpaperset.WallpaperCropScreen
@@ -205,7 +204,6 @@ private fun MainNavigationScaffold(
                             onOpenAppGrid = mainScreenViewModel::onOpenAppGrid,
                             onOpenIconShapes = mainScreenViewModel::onOpenIconShapes,
                             onOpenThemedIcons = mainScreenViewModel::onOpenThemedIcons,
-                            onOpenFonts = mainScreenViewModel::onOpenFonts,
                         )
                     }
                     NavigationDestination.Lockscreen -> {
@@ -268,11 +266,6 @@ private fun DetailScreenContent(
         is Screen.ThemedIcons -> {
             BackHandler { mainScreenViewModel.goBack() }
             ThemedIconsScreen(mainScreenViewModel = mainScreenViewModel)
-        }
-
-        is Screen.Fonts -> {
-            BackHandler { mainScreenViewModel.goBack() }
-            FontScreen(mainScreenViewModel = mainScreenViewModel)
         }
 
         is Screen.WallpaperCrop -> {

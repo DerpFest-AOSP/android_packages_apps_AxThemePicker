@@ -64,7 +64,7 @@ fun ScreenOptions(
     val context = LocalContext.current
     val colorsStr = stringResource(R.string.colors)
     val appGridStr = stringResource(R.string.app_grid)
-    val fontsStr = stringResource(R.string.fonts)
+    val iconShapesStr = stringResource(R.string.icon_shape_title)
     val widgetsStr = stringResource(R.string.widgets)
     val shortcutsStr = stringResource(R.string.shortcuts)
     val moreStr = stringResource(R.string.more)
@@ -74,7 +74,7 @@ fun ScreenOptions(
             listOf(
                 OptionCircle(colorsStr, null),
                 OptionCircle(appGridStr, Icons.Default.GridView),
-                OptionCircle(fontsStr, Icons.Default.TextFormat),
+                OptionCircle(iconShapesStr, Icons.Default.CropSquare),
             )
         else
             listOf(
@@ -99,7 +99,7 @@ fun ScreenOptions(
                                     when (name) {
                                         colorsStr -> mainScreenViewModel.onOpenColorsSettings()
                                         appGridStr -> mainScreenViewModel.onOpenAppGrid()
-                                        fontsStr -> mainScreenViewModel.onOpenFonts()
+                                        iconShapesStr -> mainScreenViewModel.onOpenIconShapes()
                                     }
                                 } else {
                                     when (name) {

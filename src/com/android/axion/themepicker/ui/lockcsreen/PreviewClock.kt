@@ -118,15 +118,15 @@ fun PreviewClock(isPreview: Boolean, isRegionDark: Boolean = true) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = timeFormat.format(currentTime.time),
+            text = timeFormat.format(currentTime.time).toString(),
             color = textColor,
-            fontSize = (72 * scale).sp.coerceAtLeast(32.sp),
+            fontSize = maxOf(72f * scale, 32f).sp,
             fontWeight = FontWeight.Light,
         )
         Text(
-            text = dateFormat.format(currentTime.time),
+            text = dateFormat.format(currentTime.time).toString(),
             color = textColor.copy(alpha = 0.85f),
-            fontSize = (16 * scale).sp.coerceAtLeast(12.sp),
+            fontSize = maxOf(16f * scale, 12f).sp,
         )
     }
 }

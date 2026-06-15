@@ -18,13 +18,9 @@ package com.android.axion.themepicker.providers
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Resources
-import android.graphics.Typeface
-import android.os.SystemProperties
 import android.os.UserHandle
 import android.provider.Settings
 import android.util.Log
-import com.android.axion.themepicker.data.model.FontOverlayOption
 import com.android.axion.themepicker.data.model.OverlayOption
 import com.android.customization.model.ResourceConstants
 import com.android.customization.model.theme.OverlayManagerCompat
@@ -85,57 +81,6 @@ class CommonOverlayProvider(
             options
         }
 
-    suspend fun loadFontOptions(): List<FontOverlayOption> =
-        withContext(Dispatchers.IO) {
-            val options = mutableListOf<FontOverlayOption>()
-
-            options.add(createDefaultFontOption())
-
-            val customOptions =
-                overlayPackages.mapNotNull { overlayPackage ->
-                    try {
-                        val overlayRes = packageManager.getResourcesForApplication(overlayPackage)
-                        val headlineFont =
-                            Typeface.create(
-                                getFontFamily(
-                                    overlayPackage,
-                                    overlayRes,
-                                    ResourceConstants.CONFIG_HEADLINE_FONT_FAMILY,
-                                ),
-                                Typeface.NORMAL,
-                            )
-                        val bodyFont =
-                            Typeface.create(
-                                getFontFamily(
-                                    overlayPackage,
-                                    overlayRes,
-                                    ResourceConstants.CONFIG_BODY_FONT_FAMILY,
-                                ),
-                                Typeface.NORMAL,
-                            )
-                        val label =
-                            packageManager
-                                .getApplicationInfo(overlayPackage, 0)
-                                .loadLabel(packageManager)
-                                .toString()
-
-                        FontOverlayOption(
-                            packageName = overlayPackage,
-                            label = label,
-                            headlineFont = headlineFont,
-                            bodyFont = bodyFont,
-                            isActive = overlayPackage == activeOverlay,
-                        )
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Couldn't load font overlay $overlayPackage, will skip it", e)
-                        null
-                    }
-                }
-
-            options.addAll(customOptions.sortedBy { it.label })
-            options
-        }
-
     fun applyOverlay(option: OverlayOption): Boolean {
         return try {
             if (option.packageName == null) {
@@ -161,18 +106,6 @@ class CommonOverlayProvider(
         }
     }
 
-    fun applyOverlay(option: FontOverlayOption): Boolean {
-        val success = applyOverlay(option as OverlayOption)
-        if (success && category == ResourceConstants.OVERLAY_CATEGORY_FONT) {
-            if (option.packageName != null) {
-                setOverlayFontProp(option.packageName)
-            } else {
-                SystemProperties.set(PROP_OVERLAY_FONTS, "")
-            }
-        }
-        return success
-    }
-
     private fun disableAllOverlays() {
         overlayPackages.forEach { overlay ->
             try {
@@ -191,48 +124,6 @@ class CommonOverlayProvider(
             label = context.getString(R.string.default_theme_title),
             isActive = activeOverlay == null,
         )
-    }
-
-    private fun createDefaultFontOption(): FontOverlayOption {
-        val system = Resources.getSystem()
-        val headlineFont =
-            Typeface.create(
-                system.getString(
-                    system.getIdentifier(
-                        ResourceConstants.CONFIG_HEADLINE_FONT_FAMILY,
-                        "string",
-                        ResourceConstants.ANDROID_PACKAGE,
-                    )
-                ),
-                Typeface.NORMAL,
-            )
-        val bodyFont =
-            Typeface.create(
-                system.getString(
-                    system.getIdentifier(
-                        ResourceConstants.CONFIG_BODY_FONT_FAMILY,
-                        "string",
-                        ResourceConstants.ANDROID_PACKAGE,
-                    )
-                ),
-                Typeface.NORMAL,
-            )
-
-        return FontOverlayOption(
-            packageName = null,
-            label = context.getString(R.string.default_theme_title),
-            headlineFont = headlineFont,
-            bodyFont = bodyFont,
-            isActive = activeOverlay == null,
-        )
-    }
-
-    private fun getFontFamily(
-        overlayPackage: String,
-        overlayRes: Resources,
-        configName: String,
-    ): String {
-        return overlayRes.getString(overlayRes.getIdentifier(configName, "string", overlayPackage))
     }
 
     private fun persistOverlay(option: OverlayOption): Boolean {
@@ -271,23 +162,7 @@ class CommonOverlayProvider(
         }
     }
 
-    private fun setOverlayFontProp(overlayPackage: String) {
-        try {
-            val overlayRes = packageManager.getResourcesForApplication(overlayPackage)
-            val body = getFontFamily(overlayPackage, overlayRes, ResourceConstants.CONFIG_BODY_FONT_FAMILY)
-            val bodyMed = getFontFamily(overlayPackage, overlayRes, CONFIG_BODY_FONT_FAMILY_MEDIUM)
-            val headline = getFontFamily(overlayPackage, overlayRes, ResourceConstants.CONFIG_HEADLINE_FONT_FAMILY)
-            val headlineMed = getFontFamily(overlayPackage, overlayRes, CONFIG_HEADLINE_FONT_FAMILY_MEDIUM)
-            SystemProperties.set(PROP_OVERLAY_FONTS, "$body:$bodyMed:$headline:$headlineMed")
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to resolve font config for $overlayPackage", e)
-        }
-    }
-
     companion object {
         private const val TAG = "CommonOverlayProvider"
-        private const val PROP_OVERLAY_FONTS = "persist.sys.ax_overlay_fonts"
-        private const val CONFIG_BODY_FONT_FAMILY_MEDIUM = "config_bodyFontFamilyMedium"
-        private const val CONFIG_HEADLINE_FONT_FAMILY_MEDIUM = "config_headlineFontFamilyMedium"
     }
 }

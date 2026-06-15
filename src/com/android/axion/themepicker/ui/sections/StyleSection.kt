@@ -43,7 +43,6 @@ fun StyleSection(
     onOpenAppGrid: () -> Unit,
     onOpenIconShapes: () -> Unit,
     onOpenThemedIcons: () -> Unit,
-    onOpenFonts: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val design = LocalExpressiveDesign.current
@@ -74,12 +73,6 @@ fun StyleSection(
                 IconShapesCardContent(onClick = onOpenIconShapes)
 
                 ThemedIconsCardContent(onClick = onOpenThemedIcons)
-
-                FontsCard(
-                    title = stringResource(R.string.fonts),
-                    description = stringResource(R.string.system_typography),
-                    onClick = onOpenFonts,
-                )
             }
         }
     } else {
@@ -100,12 +93,6 @@ fun StyleSection(
             IconShapesCardContent(onClick = onOpenIconShapes)
 
             ThemedIconsCardContent(onClick = onOpenThemedIcons)
-
-            FontsCard(
-                title = stringResource(R.string.fonts),
-                description = stringResource(R.string.system_typography),
-                onClick = onOpenFonts,
-            )
 
             ProTip(text = stringResource(R.string.pro_tip_colors_message))
         }
@@ -300,64 +287,6 @@ private fun ThemedIconsCardContent(onClick: () -> Unit, modifier: Modifier = Mod
                         Modifier.size(14.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(colors.primary.copy(alpha = 0.3f))
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FontsCard(
-    title: String,
-    description: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = MaterialTheme.colorScheme
-
-    Card(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .height(160.dp)
-                .clip(RoundedCornerShape(28.dp))
-                .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = colors.surfaceBright),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Box(modifier = Modifier.fillMaxSize().padding(20.dp)) {
-            Column(
-                modifier = Modifier.align(Alignment.BottomStart),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colors.onSurface,
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant,
-                )
-            }
-
-            Column(
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp),
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Text(
-                    text = "Aa",
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = colors.primary,
-                )
-                Text(
-                    text = "A is for Axion :)",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant,
                 )
             }
         }
