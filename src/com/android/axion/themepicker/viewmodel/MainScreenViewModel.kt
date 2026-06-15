@@ -32,6 +32,9 @@ import kotlinx.coroutines.flow.StateFlow
 
 class MainScreenViewModel : ViewModel() {
 
+    var launchedDirectToEffects: Boolean = false
+        private set
+
     private val _wallpapers = MutableStateFlow<List<WallpaperInfo>>(emptyList())
     val wallpapers: StateFlow<List<WallpaperInfo>> = _wallpapers
 
@@ -110,6 +113,13 @@ class MainScreenViewModel : ViewModel() {
 
     fun onOpenWallpaperEffects() {
         navigateTo(Screen.WallpaperEffects)
+    }
+
+    fun openWallpaperEffectsDirect() {
+        launchedDirectToEffects = true
+        _isNavigatingBack.value = false
+        _screenStack.clear()
+        _currentScreen.value = Screen.WallpaperEffects
     }
 
     var pendingPreviewBitmap: Bitmap? = null

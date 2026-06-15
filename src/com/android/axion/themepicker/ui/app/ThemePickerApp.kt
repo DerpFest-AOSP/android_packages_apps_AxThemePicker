@@ -73,6 +73,7 @@ import com.android.axion.themepicker.viewmodel.WallpaperGalleryViewModel
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ThemePickerApp(
+    openWallpaperEffects: Boolean = false,
     mainScreenViewModel: MainScreenViewModel = viewModel(),
     galleryViewModel: WallpaperGalleryViewModel = viewModel(),
 ) {
@@ -89,6 +90,9 @@ fun ThemePickerApp(
         }
 
     LaunchedEffect(Unit) {
+        if (openWallpaperEffects) {
+            mainScreenViewModel.openWallpaperEffectsDirect()
+        }
         mainScreenViewModel.initialize(context)
         galleryViewModel.initialize()
     }

@@ -146,6 +146,14 @@ fun WallpaperEffectsScreen(mainScreenViewModel: MainScreenViewModel = viewModel(
 
     val config = tabConfigs[selectedTab]!!
 
+    val navigateBack: () -> Unit = {
+        if (mainScreenViewModel.launchedDirectToEffects) {
+            (context as? Activity)?.finish()
+        } else {
+            mainScreenViewModel.goBack()
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (activeEffectComponent == null) {
             val wm = WallpaperManager.getInstance(context)
@@ -176,8 +184,7 @@ fun WallpaperEffectsScreen(mainScreenViewModel: MainScreenViewModel = viewModel(
             if (uri != null) {
                 selectedPhotoUri = uri
             } else {
-
-                mainScreenViewModel.goBack()
+                navigateBack()
             }
         }
 
@@ -374,7 +381,7 @@ fun WallpaperEffectsScreen(mainScreenViewModel: MainScreenViewModel = viewModel(
         },
     )
 
-    BackHandler { mainScreenViewModel.goBack() }
+    BackHandler { navigateBack() }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AndroidView(
@@ -441,7 +448,7 @@ fun WallpaperEffectsScreen(mainScreenViewModel: MainScreenViewModel = viewModel(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { mainScreenViewModel.goBack() }) {
+                    IconButton(onClick = navigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null,

@@ -29,6 +29,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        setContent { AxTheme { ThemePickerApp() } }
+        val openWallpaperEffects =
+            intent.getBooleanExtra(EXTRA_OPEN_WALLPAPER_EFFECTS, false)
+
+        setContent {
+            AxTheme {
+                ThemePickerApp(openWallpaperEffects = openWallpaperEffects)
+            }
+        }
+    }
+
+    companion object {
+        const val EXTRA_OPEN_WALLPAPER_EFFECTS = "open_wallpaper_effects"
     }
 }
