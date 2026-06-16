@@ -68,7 +68,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.axion.themepicker.R
 import com.android.axion.themepicker.ui.restartApp
 import com.android.axion.themepicker.utils.effects.*
-import com.android.axion.themepicker.utils.wallpaper.getCurrentWallpaperBitmap
+import com.android.axion.themepicker.utils.wallpaper.getWallpaperBitmapForEffects
 import com.android.axion.themepicker.viewmodel.MainScreenViewModel
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -190,22 +190,15 @@ fun WallpaperEffectsScreen(mainScreenViewModel: MainScreenViewModel = viewModel(
 
     LaunchedEffect(Unit) {
         if (!photoReady) {
-            val wm = WallpaperManager.getInstance(context)
-            val isEffectActive = wm.wallpaperInfo?.packageName == EFFECTS_PKG
-            
-            if (!isEffectActive) {
-                val success = withContext(Dispatchers.IO) {
-                    saveCurrentWallpaperForEffects(context)
-                }
-                if (success) {
-                    photoReady = true
-                    return@LaunchedEffect
-                }
+            val success =
+                withContext(Dispatchers.IO) { saveCurrentWallpaperForEffects(context) }
+            if (success) {
+                photoReady = true
+            } else {
+                photoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
             }
-
-            photoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
         }
     }
 
@@ -1341,7 +1334,7 @@ private fun applyEffect(
 
 private fun saveOriginalWallpaper(context: Context) {
     try {
-        val bitmap = getCurrentWallpaperBitmap(context, true) ?: return
+        val bitmap = getWallpaperBitmapForEffects(context) ?: return
         val effectsCtx = context.createPackageContext(EFFECTS_PKG, Context.CONTEXT_IGNORE_SECURITY)
         val deCtx = effectsCtx.createDeviceProtectedStorageContext()
         val filesDir = deCtx.filesDir
@@ -1389,7 +1382,7 @@ private fun saveSelectedPhotoForEffects(context: Context, uri: Uri) {
 
 private fun saveCurrentWallpaperForEffects(context: Context): Boolean {
     try {
-        val bitmap = getCurrentWallpaperBitmap(context, true) ?: return false
+        val bitmap = getWallpaperBitmapForEffects(context) ?: return false
         val effectsCtx = context.createPackageContext(EFFECTS_PKG, Context.CONTEXT_IGNORE_SECURITY)
         val deCtx = effectsCtx.createDeviceProtectedStorageContext()
         val filesDir = deCtx.filesDir

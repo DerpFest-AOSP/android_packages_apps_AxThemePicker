@@ -181,6 +181,34 @@ internal object EmptyPainter : Painter() {
     override fun DrawScope.onDraw() {}
 }
 
+fun getWallpaperBitmapForEffects(context: Context): Bitmap? {
+    val wm = WallpaperManager.getInstance(context)
+
+    if (wm.wallpaperInfo?.packageName == EFFECTS_PKG) {
+        readEffectsWallpaperBitmap(context)?.let { return it }
+    }
+
+    for (flag in listOf(WallpaperManager.FLAG_SYSTEM, WallpaperManager.FLAG_LOCK)) {
+        try {
+            wm.getWallpaperFile(flag)?.use { pfd ->
+                BitmapFactory.decodeFileDescriptor(pfd.fileDescriptor)?.let { return it }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to read wallpaper file for flag=$flag", e)
+        }
+    }
+
+    return try {
+        val drawable =
+            wm.getDrawable(WallpaperManager.FLAG_SYSTEM)
+                ?: wm.getDrawable(WallpaperManager.FLAG_LOCK)
+        drawable?.toBitmap()
+    } catch (e: Exception) {
+        Log.w(TAG, "Failed to load wallpaper drawable for effects", e)
+        null
+    }
+}
+
 fun getCurrentWallpaperBitmap(context: Context, isHome: Boolean = true): Bitmap? {
     val wm = WallpaperManager.getInstance(context)
 
