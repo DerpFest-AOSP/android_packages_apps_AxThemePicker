@@ -67,8 +67,6 @@ android_app {
         "-opt-in=kotlin.RequiresOptIn",
         "-P plugin:androidx.compose.compiler.plugins.kotlin:sourceInformation=true",
     ],
-    
-    overrides: ["ThemePicker", "WallpaperCropper", "WallpaperPicker", "WallpaperPicker2"],
 
     kotlin_plugins: ["kotlin-parcelize-compiler-plugin"],
 }
