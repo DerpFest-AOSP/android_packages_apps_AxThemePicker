@@ -79,7 +79,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import com.android.axion.compose.scaffold.AxionScaffold
+import com.android.axion.themepicker.ui.components.DetailScaffold
 import com.android.axion.themepicker.R
 import com.android.axion.themepicker.ui.theme.LocalAdaptiveLayoutInfo
 import com.android.axion.themepicker.ui.theme.bounceable
@@ -199,10 +199,10 @@ fun ThemedIconsScreen(mainScreenViewModel: MainScreenViewModel) {
 
     BackHandler { mainScreenViewModel.goBack() }
 
-    AxionScaffold(
+    DetailScaffold(
         title = stringResource(R.string.themed_icons_title),
         onBackClick = { mainScreenViewModel.goBack() },
-        modifier = Modifier.background(colors.background),
+        containerColor = colors.background,
     ) { paddingValues ->
         if (layoutInfo.isDualPane) {
             Row(

@@ -28,9 +28,6 @@ android_app {
     use_embedded_native_libs: true,
 
     static_libs: [
-        "ax_compose",
-        "ax_kt",
-        "ax.androidx.compose.material3_material3",
         "com.composables_icons-material-symbols-rounded-filled-android",
         "androidx.activity_activity-compose",
         "androidx.core_core-ktx",

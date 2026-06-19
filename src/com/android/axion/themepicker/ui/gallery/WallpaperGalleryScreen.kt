@@ -46,7 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.android.axion.compose.scaffold.AxionScaffold
+import com.android.axion.themepicker.ui.components.DetailScaffold
 import com.android.axion.themepicker.R
 import com.android.axion.themepicker.data.model.GalleryState
 import com.android.axion.themepicker.data.model.WallpaperCategory
@@ -102,10 +102,10 @@ fun WallpaperGalleryScreen(
 
     BackHandler(enabled = true) { galleryViewModel.goBack { mainScreenViewModel.resetToMain() } }
 
-    AxionScaffold(
+    DetailScaffold(
         title = headerTitle,
         onBackClick = { galleryViewModel.goBack { mainScreenViewModel.resetToMain() } },
-        modifier = Modifier.background(colors.surfaceContainer),
+        containerColor = colors.surfaceContainer,
     ) { paddingValues ->
         val back = isNavigatingBack || galleryState is GalleryState.Overview
 

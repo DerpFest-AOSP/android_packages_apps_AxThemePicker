@@ -69,7 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.PathParser
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.android.axion.compose.scaffold.AxionScaffold
+import com.android.axion.themepicker.ui.components.DetailScaffold
 import com.android.axion.themepicker.R
 import com.android.axion.themepicker.ui.app.PreviewsPage
 import com.android.axion.themepicker.ui.theme.LocalAdaptiveLayoutInfo
@@ -109,10 +109,10 @@ fun AppGridSettingsScreen(
 
     BackHandler { mainScreenViewModel.goBack() }
 
-    AxionScaffold(
+    DetailScaffold(
         title = stringResource(R.string.app_grid_title),
         onBackClick = { mainScreenViewModel.goBack() },
-        modifier = Modifier.background(colors.background),
+        containerColor = colors.background,
     ) { paddingValues ->
         if (layoutInfo.isDualPane) {
             Row(

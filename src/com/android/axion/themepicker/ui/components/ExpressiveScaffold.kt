@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.android.axion.themepicker.data.model.NavigationDestination
+import com.android.axion.themepicker.ui.expressive.ExpressiveHeader
 import com.android.axion.themepicker.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -185,6 +186,22 @@ private fun ExpressiveNavIcon(
                 scaleX = scale
                 scaleY = scale
             },
+    )
+}
+
+@Composable
+fun DetailScaffold(
+    title: String,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    Scaffold(
+        modifier = modifier,
+        topBar = { ExpressiveHeader(title = title, onBackClick = onBackClick) },
+        containerColor = containerColor,
+        content = content,
     )
 }
 

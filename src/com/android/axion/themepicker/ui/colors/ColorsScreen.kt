@@ -50,7 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.android.axion.compose.scaffold.AxionScaffold
+import com.android.axion.themepicker.ui.components.DetailScaffold
 import com.android.axion.themepicker.R
 import com.android.axion.themepicker.ui.preview.CalculatorPreview
 import com.android.axion.themepicker.ui.preview.QuickSettingsPreview
@@ -65,10 +65,10 @@ fun ColorsSettingsScreen(mainScreenViewModel: MainScreenViewModel = viewModel())
     val layoutInfo = LocalAdaptiveLayoutInfo.current
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
 
-    AxionScaffold(
+    DetailScaffold(
         title = stringResource(id = R.string.colors_title),
         onBackClick = { mainScreenViewModel.resetToMain() },
-        modifier = Modifier.background(colors.background),
+        containerColor = colors.background,
     ) { paddingValues ->
         if (layoutInfo.isDualPane) {
             Row(
